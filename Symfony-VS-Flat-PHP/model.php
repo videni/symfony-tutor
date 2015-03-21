@@ -2,33 +2,31 @@
 // model.php
 function open_database_connection()
 {
-    $link = mysql_connect('localhost', 'root', '');
-    mysql_select_db('blog_db', $link);
-    return $link;
+	$dsn = "mysql:host=localhost;dbname=blog_db";
+	$db = new PDO($dsn, 'root', '');
+    return $db;
 }
-function close_database_connection($link)
+function close_database_connection(&$db)
 {
-    mysql_close($link);
+	$db=null;
 }
 function get_all_posts()
 {
-    $link = open_database_connection();
-    $result = mysql_query('SELECT id, title FROM post', $link);
-    $posts = array();
-    while ($row = mysql_fetch_assoc($result)) {
-        $posts[] = $row;
-    }
+    $db = open_database_connection();
+    $statement = $db->query('SELECT id, title FROM post');
+    $statement->setFetchMode(PDO::FETCH_ASSOC);
+    $posts=$statement->fetchAll();
     close_database_connection($link);
     return $posts;
 }
 function get_post_by_id($id)
 {
-    $link = open_database_connection();
+    $db = open_database_connection();
     $id = intval($id);
-    $query = 'SELECT date, title, body FROM post WHERE id = '.$id;
-echo $query;
-    $result = mysql_query($query);
-    $row = mysql_fetch_assoc($result);
-    close_database_connection($link);
-    return $row;
+    $query = 'SELECT id,date, title, body FROM post WHERE id = '.$id;
+    $statement=$db->query($query);
+    $statement->setFetchMode(PDO::FETCH_ASSOC);
+    $post=$statement->fetch();
+    close_database_connection($db);
+    return $post;
 }
