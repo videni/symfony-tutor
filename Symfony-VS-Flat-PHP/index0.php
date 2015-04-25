@@ -1,8 +1,8 @@
 <?php
 // index.php
-$link = mysql_connect('localhost', 'root', '');
-mysql_select_db('blog_db', $link);
-$result = mysql_query('SELECT id, title FROM post', $link);
+$dsn = "mysql:host=localhost;dbname=blog_db";
+ $db = new PDO($dsn, 'root', '');
+$statement = $db->query('SELECT id, title FROM post');
 ?>
 <!DOCTYPE html>
 <html>
@@ -12,7 +12,7 @@ $result = mysql_query('SELECT id, title FROM post', $link);
     <body>
         <h1>List of Posts</h1>
         <ul>
-            <?php while ($row = mysql_fetch_assoc($result)): ?>
+            <?php while ($row = $statement->fetch()): ?>
   <li>
                 <a href="/show.php?id=<?php echo $row['id'] ?>">
                     <?php echo $row['title'] ?>
@@ -23,5 +23,5 @@ $result = mysql_query('SELECT id, title FROM post', $link);
     </body>
 </html>
 <?php
-mysql_close($link);
+$db=null;
 ?>
