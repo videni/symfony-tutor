@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <parameters>
+        <parameter key="acme_user.registration.form.type">acme_user_registration</parameter>
+        <parameter key="acme_user.registration.form.name">acme_user_registration_form</parameter>
+        <parameter key="acme_user.model.user.class">Acme\DemoBundle\Entity\User</parameter>
+        <parameter key="acme_user.model_manager_name">null</parameter>
+        <parameter key="acme_user.registration.form.validation_groups" type="collection">
+            <parameter>Registration</parameter>
+            <parameter>Default</parameter>
+        </parameter>   
+    </parameters>
+    
+    <services>
+        <service id="acme.listener.registration.initialize" class="Acme\DemoBundle\EventListener\RegistrationListener">
+            <tag name="kernel.event_subscriber" />
+        </service>
+
+        <service id="acme_user.registration.form.factory" class="Acme\DemoBundle\Form\Factory\FormFactory">
+            <argument type="service" id="form.factory" />
+            <argument>%acme_user.registration.form.name%</argument>
+            <argument>%acme_user.registration.form.type%</argument>
+            <argument>%acme_user.registration.form.validation_groups%</argument>
+        </service>
+
+        <service id="acme_user.registration.form.type" class="Acme\DemoBundle\Form\Type\RegistrationFormType">
+            <tag name="form.type" alias="acme_user_registration" />
+            <argument>%acme_user.model.user.class%</argument>
+        </service>
+
+        <service id="acme_user.user_manager" class="Acme\DemoBundle\Doctrine\UserManager" public="true">
+            <argument type="service" id="security.encoder_factory" />
+            <argument type="service" id="acme_user.util.username_canonicalizer" />
+            <argument type="service" id="acme_user.util.email_canonicalizer" />
+            <argument type="service" id="acme_user.entity_manager" />
+            <argument>%acme_user.model.user.class%</argument>
+        </service>
+
+        <service id="acme_user.entity_manager" factory-service="doctrine" factory-method="getManager" class="Doctrine\ORM\EntityManager" public="false">
+            <argument>%acme_user.model_manager_name%</argument>
+        </service>
+
+        <service id="acme_user.util.username_canonicalizer" alias="acme_user.util.email_canonicalizer"/>
+
+        <service id="acme_user.util.email_canonicalizer" class="Acme\DemoBundle\Util\Canonicalizer"/>
+
+
+    </services>
+
+</container>
